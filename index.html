@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -54,6 +54,15 @@
                         <li><a href="#" class="sub-item">일정 관리</a></li>
                         <li><a href="javascript:app.switchView('popList')" class="sub-item" id="sub-popList">POP 제작
                                 관리</a></li>
+                    </ul>
+                </li>
+                <li class="has-sub" id="parent-fixture-master">
+                    <a href="javascript:void(0)" onclick="app.toggleSubMenu('parent-fixture-master')">
+                        <i class='bx bx-cog'></i>집기 마스터 관리
+                    </a>
+                    <ul class="sub-menu-list">
+                        <li><a href="javascript:app.switchView('fixtureManagement')" class="sub-item"
+                                id="sub-fixtureManagement">집기 카테고리/등록 관리</a></li>
                     </ul>
                 </li>
                 <li><a href="#"><i class='bx bx-file'></i>가이드 관리</a></li>
@@ -399,9 +408,14 @@
 
             <!-- 집기 요청 목록 뷰 -->
             <section id="fixtureRequestsView" class="view-section">
-                <div class="page-title-row">
-                    <h2>집기 요청 목록 관리</h2>
-                    <div class="breadcrumb">요청내역 관리 &gt; 집기 요청 목록 관리</div>
+                <div class="page-title-row" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="margin: 0; padding: 0;">집기 요청 목록 관리</h2>
+                        <div class="breadcrumb" style="margin-top: 5px;">요청내역 관리 &gt; 집기 요청 목록 관리</div>
+                    </div>
+                    <button class="btn btn-outline" onclick="app.openMonthlyAmountModal()"
+                        style="font-weight: bold; border-color: #333; color: #333;"><i class='bx bx-calculator'></i> 월별
+                        금액 확인</button>
                 </div>
 
                 <!-- 필터 영역 (이미지 참고하여 수정) -->
@@ -564,13 +578,21 @@
                     </div>
 
                     <div style="display: flex; gap: 40px;">
-                        <!-- Left: Image Placeholder -->
-                        <div style="flex: 0 0 350px; max-width: 350px;">
+                        <!-- Left: Image Playholders -->
+                        <div
+                            style="flex: 0 0 350px; max-width: 350px; display: flex; flex-direction: column; gap: 20px;">
                             <div
                                 style="width: 100%; height: 350px; background: #fafafa; display: flex; align-items: center; justify-content: center; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
                                 <img id="accordionDetailImg" src="" alt="집기 이미지"
                                     style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                                <span id="accordionDetailImgPlaceholder" style="color: #999; font-weight: 500;">이미지
+                                <span id="accordionDetailImgPlaceholder" style="color: #999; font-weight: 500;">집기 이미지
+                                    영역</span>
+                            </div>
+                            <div
+                                style="width: 100%; height: 350px; background: #fafafa; display: flex; align-items: center; justify-content: center; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
+                                <img id="accordionPosImg" src="" alt="연출 위치 이미지"
+                                    style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <span id="accordionPosImgPlaceholder" style="color: #999; font-weight: 500;">연출 위치 이미지
                                     영역</span>
                             </div>
                         </div>
@@ -604,13 +626,21 @@
                     </div>
 
                     <div style="display: flex; gap: 40px; margin-top: 20px; margin-bottom: 30px;">
-                        <!-- Left: Image Placeholder -->
-                        <div style="flex: 0 0 350px; max-width: 350px;">
+                        <!-- Left: Image Playholders -->
+                        <div
+                            style="flex: 0 0 350px; max-width: 350px; display: flex; flex-direction: column; gap: 20px;">
                             <div
                                 style="width: 100%; height: 350px; background: #fafafa; display: flex; align-items: center; justify-content: center; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
                                 <img id="detailFixtureImg" src="" alt="집기 이미지"
                                     style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                                <span id="detailFixtureImgPlaceholder" style="color: #999; font-weight: 500;">이미지
+                                <span id="detailFixtureImgPlaceholder" style="color: #999; font-weight: 500;">집기 이미지
+                                    영역</span>
+                            </div>
+                            <div
+                                style="width: 100%; height: 350px; background: #fafafa; display: flex; align-items: center; justify-content: center; border: 1px solid #e0e0e0; border-radius: 12px; overflow: hidden;">
+                                <img id="detailPosImg" src="" alt="연출 위치 이미지"
+                                    style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                <span id="detailPosImgPlaceholder" style="color: #999; font-weight: 500;">연출 위치 이미지
                                     영역</span>
                             </div>
                         </div>
@@ -638,16 +668,26 @@
                             <div class="apv-step" id="step-marketing">
                                 <div class="apv-step-label">마케팅팀 승인</div>
                                 <div class="apv-step-desc">마케팅팀 담당자가 승인 버튼 클릭 → 디자인팀 승인 버튼 활성화</div>
-                                <button class="btn btn-primary btn-sm apv-btn" id="btn-marketing"
-                                    onclick="approveStep('marketing')">마케팅팀 승인완료</button>
+                                <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                                    <button class="btn btn-primary btn-sm apv-btn" id="btn-marketing"
+                                        onclick="approveStep('marketing')">마케팅팀 승인완료</button>
+                                    <button class="btn btn-outline btn-sm apv-btn" id="btn-marketing-cancel"
+                                        onclick="cancelApprovalStep('marketing')"
+                                        style="display:none; color: #c62828; border-color: #c62828;">승인 취소</button>
+                                </div>
                                 <span class="apv-done-badge" id="done-marketing" style="display:none;">✓ 승인완료</span>
                             </div>
                             <div class="apv-step-arrow">→</div>
                             <div class="apv-step apv-step-disabled" id="step-design">
                                 <div class="apv-step-label">디자인팀 승인</div>
                                 <div class="apv-step-desc">디자인팀 담당자가 승인 버튼 클릭 → 확인 완료 버튼 활성화</div>
-                                <button class="btn btn-primary btn-sm apv-btn" id="btn-design"
-                                    onclick="approveStep('design')" disabled>디자인팀 승인완료</button>
+                                <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                                    <button class="btn btn-primary btn-sm apv-btn" id="btn-design"
+                                        onclick="approveStep('design')" disabled>디자인팀 승인완료</button>
+                                    <button class="btn btn-outline btn-sm apv-btn" id="btn-design-cancel"
+                                        onclick="cancelApprovalStep('design')"
+                                        style="display:none; color: #c62828; border-color: #c62828;">승인 취소</button>
+                                </div>
                                 <span class="apv-done-badge" id="done-design" style="display:none;">✓ 승인완료</span>
                             </div>
                             <div class="apv-step-arrow">→</div>
@@ -671,12 +711,67 @@
                         </div>
                     </div>
 
-                    <!-- 승인 이력 로그 -->
-                    <div style="margin-top: 40px;">
+                    <!-- 견적 및 파일 첨부 영역 -->
+                    <div id="estimateSection"
+                        style="display: none; margin-top: 40px; background:#fff; padding: 25px; border-radius: 8px; border: 1px solid #ddd; border-top: 3px solid #333;">
                         <h4
-                            style="font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #333; padding-bottom: 10px;">
-                            처리 이력</h4>
-                        <div class="table-wrap">
+                            style="font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                            사전협의서(견적서) 및 견적 금액</h4>
+
+                        <div style="margin-bottom: 25px;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 10px;">사전협의서(견적서) 파일
+                                첨부</label>
+                            <input type="file" id="estimateFileInput" class="admin-input"
+                                style="width: 100%; max-width: 400px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-weight: 500; margin-bottom: 10px;">견적 금액 입력 (<span
+                                    id="estimateTypeLabel"></span>)</label>
+
+                            <!-- VMD 비용 란 -->
+                            <div id="vmdEstimateFields"
+                                style="display: none; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="width: 120px;">DP 비용</span>
+                                    <input type="text" class="admin-input" placeholder="0"
+                                        style="flex: 1; text-align: right; padding: 5px; border: 1px solid #ccc;"> <span
+                                        style="color:#666;">원</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="width: 120px;">Hip 비용</span>
+                                    <input type="text" class="admin-input" placeholder="0"
+                                        style="flex: 1; text-align: right; padding: 5px; border: 1px solid #ccc;"> <span
+                                        style="color:#666;">원</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="width: 120px;">지점판촉 비용</span>
+                                    <input type="text" class="admin-input" placeholder="0"
+                                        style="flex: 1; text-align: right; padding: 5px; border: 1px solid #ccc;"> <span
+                                        style="color:#666;">원</span>
+                                </div>
+                            </div>
+
+                            <!-- 마케팅팀 비용 란 (동적 렌더링) -->
+                            <div id="marketingEstimateFields" style="display: none; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                <!-- Dynamically generated from fixture master data -->
+                            </div>
+                        </div>
+                        <div style="text-align: right; margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="alert('견적 정보가 변경(저장)되었습니다.');">변경(저장)</button>
+                        </div>
+                    </div>
+
+                    <!-- 승인 이력 로그 -->
+                    <div style="margin-top: 40px;" id="approvalHistorySection">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; cursor: pointer;"
+                            onclick="toggleApprovalHistory()">
+                            <h4 style="font-size: 1.1rem; font-weight: bold; margin: 0;">처리 이력</h4>
+                            <button type="button" class="btn btn-outline btn-sm" id="btnToggleApprovalHistory"
+                                style="border: none; background: transparent; font-size: 1.2rem; cursor: pointer;"><i
+                                    class='bx bx-chevron-down'></i></button>
+                        </div>
+                        <div class="table-wrap" id="approvalHistoryTableWrap" style="display: none;">
                             <table class="history-table">
                                 <thead>
                                     <tr>
@@ -1532,7 +1627,138 @@
                     </div>
                 </div>
             </section>
+
+            <!-- 집기 마스터 관리 뷰 -->
+            <section id="fixtureManagementView" class="view-section">
+                <div class="page-title-row">
+                    <h2>집기 카테고리/등록 관리</h2>
+                    <div class="breadcrumb">집기 마스터 관리 &gt; 집기 카테고리/등록 관리</div>
+                </div>
+
+                <div class="fixture-mgmt-container" style="display: flex; gap: 20px; align-items: flex-start;">
+                    <!-- Left: Category Tree/Navigation -->
+                    <div class="mgmt-card category-nav-card"
+                        style="flex: 0 0 300px; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+                        <h3
+                            style="font-size: 1.1rem; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px;">
+                            카테고리 구성</h3>
+
+                        <div class="category-tabs" style="display: flex; gap: 5px; margin-bottom: 15px;">
+                            <button class="btn btn-sm btn-primary" id="btn-initial-marketing"
+                                onclick="app.setMgmtInitial('marketing')">마케팅</button>
+                            <button class="btn btn-sm btn-outline" id="btn-initial-vmd"
+                                onclick="app.setMgmtInitial('vmd')">VMD</button>
+                        </div>
+
+                        <div id="categoryTreeContainer" class="category-tree">
+                            <!-- JS will render category hierarchy here -->
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: right;">
+                            <button class="btn btn-outline btn-sm" onclick="app.openCategoryModal('large')">+ 대카테고리
+                                추가</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Fixture List or Category Detail -->
+                    <div class="mgmt-card content-card"
+                        style="flex: 1; background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; min-height: 600px;">
+                        <div id="mgmtContentHeader"
+                            style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
+                            <h3 id="mgmtBreadcrumb" style="font-size: 1.1rem;">전체</h3>
+                            <div class="mgmt-actions">
+                                <button class="btn btn-primary btn-sm" id="btnAddFixture"
+                                    onclick="app.openFixtureModal()" style="display: none;">+ 집기 등록</button>
+                                <button class="btn btn-outline btn-sm" id="btnEditCategory"
+                                    onclick="app.openCategoryModal('edit')" style="display: none;">카테고리 수정</button>
+                            </div>
+                        </div>
+
+                        <div id="mgmtListContainer">
+                            <div class="empty-state" style="text-align: center; color: #999; padding-top: 100px;">
+                                <i class='bx bx-info-circle'
+                                    style="font-size: 3rem; display: block; margin-bottom: 10px;"></i>
+                                <p>좌측 카테고리를 선택하여<br>구성 정보를 확인하거나 집기를 등록해주세요.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
+
+        <!-- 집기 등록/수정 모달 -->
+        <div id="fixtureModal" class="modal-overlay" style="display: none; z-index: 2000;">
+            <div class="modal-content" style="width: 600px; max-width: 90%; border-radius: 12px;">
+                <div class="modal-header">
+                    <h3 id="fixtureModalTitle">집기 정보 등록</h3>
+                </div>
+                <div class="modal-body" style="padding: 25px;">
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>집기명 <span style="color: #A50034;">*</span></label>
+                            <input type="text" id="fixNameInput" placeholder="집기명을 입력해주세요" class="admin-input"
+                                style="width: 100%;">
+                        </div>
+                        <div class="form-group">
+                            <label>사이즈</label>
+                            <input type="text" id="fixSizeInput" placeholder="예: 1200 x 600 x 1400" class="admin-input"
+                                style="width: 100%;">
+                        </div>
+                        <div class="form-group">
+                            <label>예상 견적</label>
+                            <input type="text" id="fixCostInput" placeholder="예: 1,500,000원" class="admin-input"
+                                style="width: 100%;">
+                        </div>
+                        <div class="form-group">
+                            <label>담당 팀 <span style="color: #A50034;">*</span></label>
+                            <select id="fixTeamInput" class="admin-input" style="width: 100%; height: 44px; padding: 0 12px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="">담당 팀을 선택해주세요</option>
+                                <option>마케팅 1팀</option>
+                                <option>마케팅 2팀</option>
+                                <option>마케팅 3팀</option>
+                                <option>마케팅 4팀</option>
+                                <option>마케팅 5팀</option>
+                                <option>마케팅 6팀</option>
+                                <option>마케팅 7팀</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label>이미지</label>
+                            <div class="image-upload-box"
+                                style="border: 2px dashed #ddd; height: 150px; display: flex; align-items: center; justify-content: center; background: #fafafa; position: relative;">
+                                <span style="color: #999;">이미지를 드래그하거나 클릭하여 업로드</span>
+                                <input type="file"
+                                    style="position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="app.closeFixtureModal()">취소</button>
+                    <button class="btn btn-primary" onclick="app.saveFixture()">저장하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 카테고리 등록/수정 모달 -->
+        <div id="categoryModal" class="modal-overlay" style="display: none; z-index: 2000;">
+            <div class="modal-content" style="width: 400px; border-radius: 12px;">
+                <div class="modal-header">
+                    <h3 id="categoryModalTitle">카테고리 등록</h3>
+                </div>
+                <div class="modal-body" style="padding: 25px;">
+                    <div class="form-group">
+                        <label>카테고리명 <span style="color: #A50034;">*</span></label>
+                        <input type="text" id="categoryNameInput" placeholder="명을 입력해주세요" class="admin-input"
+                            style="width: 100%;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="app.closeCategoryModal()">취소</button>
+                    <button class="btn btn-primary" onclick="app.saveCategory()">저장하기</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 발주 대상 업체 선택 모달 (HSAD용) -->
@@ -1567,6 +1793,82 @@
                 <button class="btn"
                     style="padding: 12px 30px; font-size: 1.05rem; background-color: #A50034; color: white; border: none; border-radius: 4px; font-weight: bold;"
                     onclick="confirmHsadVendorOrder()">발주 요청 및 메일 발송</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 월별 금액 확인 모달 -->
+    <div id="monthlyAmountModal" class="modal-overlay"
+        style="display: none; align-items: center; justify-content: center; z-index: 2000;">
+        <div class="modal-content"
+            style="width: 800px; max-width: 95%; max-height: 90vh; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; background: #fff;">
+            <div class="modal-header"
+                style="background: #f8f9fa; padding: 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 1.25rem;">월별 금액 확인</h3>
+                <button class="close-btn"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;"
+                    onclick="app.closeMonthlyAmountModal()">✕</button>
+            </div>
+            <div class="modal-body" style="padding: 25px; overflow-y: auto; flex: 1;">
+                <!-- 1. 년/월 콤보박스 -->
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: #fdfdfd; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                    <div style="font-weight: 500; font-size: 1.05rem;"><i class='bx bx-calendar'></i> 조회 기간 선택</div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="monthlyAmountYear" class="admin-select"
+                            style="width: 120px; height: 38px; padding: 0 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;">
+                            <option value="2026" selected>2026년</option>
+                            <option value="2025">2025년</option>
+                        </select>
+                        <select id="monthlyAmountMonth" class="admin-select"
+                            style="width: 100px; height: 38px; padding: 0 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;">
+                            <option value="01">01월</option>
+                            <option value="02">02월</option>
+                            <option value="03" selected>03월</option>
+                            <option value="04">04월</option>
+                        </select>
+                        <button class="btn btn-primary"
+                            style="padding: 8px 16px; border-radius: 4px; border: none; background: #A50034; color: white; cursor: pointer;"
+                            onclick="app.renderMonthlyAmount()">조회</button>
+                    </div>
+                </div>
+
+                <!-- 2. 1차 분류 탭 (마케팅 집기 / VMD 집기) -->
+                <div class="tabs"
+                    style="display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding: 0 10px;">
+                    <button id="monthlyTabMarketing" class="tab-btn"
+                        style="flex: 1; padding: 12px; font-weight: bold; font-size: 1.05rem; background: transparent; border: none; border-bottom: 3px solid #A50034; color: #A50034; cursor: pointer; outline: none; transition: 0.2s;"
+                        onclick="app.switchMonthlyType('marketing')">마케팅 집기</button>
+                    <button id="monthlyTabVmd" class="tab-btn"
+                        style="flex: 1; padding: 12px; font-weight: bold; font-size: 1.05rem; background: transparent; border: none; border-bottom: 3px solid transparent; color: #666; cursor: pointer; outline: none; transition: 0.2s;"
+                        onclick="app.switchMonthlyType('vmd')">VMD 집기</button>
+                </div>
+
+                <!-- 3. 하위 2차 분류 라디오 버튼 / 서브 탭 -->
+                <div
+                    style="margin-bottom: 30px; display: flex; gap: 20px; justify-content: center; background: #fcfcfc; padding: 15px; border-radius: 8px;">
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 1rem;">
+                        <input type="radio" name="monthlySubType" id="monthlySubTypeItem" value="item" checked
+                            onclick="app.renderMonthlyAmount()">
+                        <span id="labelMonthlySubItem">집기별</span>
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 1rem;">
+                        <input type="radio" name="monthlySubType" id="monthlySubTypeGroup" value="group"
+                            onclick="app.renderMonthlyAmount()">
+                        <span id="labelMonthlySubGroup">팀별</span>
+                    </label>
+                </div>
+
+                <!-- 4. 결과 콘텐츠 영역 -->
+                <div id="monthlyAmountResultWrap">
+                    <!-- JS Rendering Here -->
+                </div>
+            </div>
+            <div class="modal-footer"
+                style="padding: 20px; background: #f8f9fa; border-top: 1px solid #ddd; text-align: right;">
+                <button class="btn btn-outline"
+                    style="padding: 10px 25px; border-radius: 4px; border: 1px solid #bbb; background: #fff; cursor: pointer;"
+                    onclick="app.closeMonthlyAmountModal()">닫기</button>
             </div>
         </div>
     </div>

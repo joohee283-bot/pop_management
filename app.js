@@ -60,7 +60,8 @@ const app = {
             'fixtureRequests': 'fixtureRequestsView',
             'fixtureReqDetailPage': 'fixtureReqDetailPageView',
             'fixtureStatus': 'fixtureStatusView',
-            'fixtureStatusDetailPage': 'fixtureStatusDetailPageView'
+            'fixtureStatusDetailPage': 'fixtureStatusDetailPageView',
+            'fixtureManagement': 'fixtureManagementView'
         };
 
         const targetId = viewMap[viewId] || viewId;
@@ -122,6 +123,19 @@ const app = {
             if (viewId === 'fixtureStatus' && typeof renderFixtureStatusTable === 'function') {
                 renderFixtureStatusTable();
             }
+        } else if (viewId === 'fixtureManagement') {
+            const parent = document.getElementById('parent-fixture-master');
+            if (parent) {
+                parent.classList.add('active');
+                parent.classList.add('open');
+            }
+            const sub = document.getElementById('sub-fixtureManagement');
+            if (sub) sub.classList.add('active-sub');
+
+            if (!fixtureMasterData) {
+                app.initFixtureMgmt();
+            }
+            app.setMgmtInitial('marketing');
         }
 
         window.scrollTo(0, 0);
@@ -165,8 +179,12 @@ const app = {
     }
 };
 
+window.app = app;
+
 // --- Initialization ---
+console.log("app.js: Local script loaded and app object exposed to window.");
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("app.js: DOMContentLoaded fired.");
     renderTable(mockData);
     setupImageUpload();
     setupTabs();
@@ -581,7 +599,9 @@ const fixtureRequestMockData = [
         installDate: '2026.03.18',
         completeDate: '2026.03.05',
         status: 'HSAD 확인완료',
-        approvalStep: 3
+        approvalStep: 3,
+        vendor: '위즈네트웍스',
+        owningTeam: 'B2B마케팅팀',
     },
     {
         id: 'FX-2026-004',
@@ -594,7 +614,12 @@ const fixtureRequestMockData = [
         installDate: '2026.03.10',
         completeDate: '-',
         status: '취소됨',
-        approvalStep: -1
+        approvalStep: -1,
+        vendor: '인투브이',
+        owningTeam: 'VMD기획팀',
+        remarks: '캠핑존 전면 배치 희망합니다.',
+        fixtureImage: 'https://via.placeholder.com/350x350?text=Fixture+Image',
+        positionImage: 'https://via.placeholder.com/350x350?text=Position+Image'
     }
 ];
 
@@ -721,12 +746,40 @@ function toggleAccordion(idx) {
         <div class="approval-info-item"><span class="info-label">제품군</span><span class="info-val">${item.prodGroup || '-'}</span></div>
         <div class="approval-info-item"><span class="info-label">수량</span><span class="info-val">${item.qty}</span></div>
         <div class="approval-info-item"><span class="info-label">매장명</span><span class="info-val">${item.store}</span></div>
+        <div class="approval-info-item"><span class="info-label">협력사</span><span class="info-val">${item.vendor || '-'}</span></div>
+        <div class="approval-info-item"><span class="info-label">주체 팀</span><span class="info-val">${item.owningTeam || '-'}</span></div>
         <div class="approval-info-item"><span class="info-label">접수일</span><span class="info-val">${item.date}</span></div>
         <div class="approval-info-item"><span class="info-label">완료일</span><span class="info-val">${item.completeDate || '-'}</span></div>
+        <div class="approval-info-item"><span class="info-label">희망 설치일</span><span class="info-val">${item.installDate || '-'}</span></div>
+        <div class="approval-info-item" style="grid-column: span 2;"><span class="info-label">기타 특이사항</span><span class="info-val">${item.remarks || '-'}</span></div>
     `;
 
-    document.getElementById('accordionDetailImg').style.display = 'none';
-    document.getElementById('accordionDetailImgPlaceholder').style.display = 'block';
+    const imgEl = document.getElementById('accordionDetailImg');
+    const phEl = document.getElementById('accordionDetailImgPlaceholder');
+    const posImgEl = document.getElementById('accordionPosImg');
+    const posPhEl = document.getElementById('accordionPosImgPlaceholder');
+
+    // Fixture image
+    if (item.fixtureImage) {
+        imgEl.src = item.fixtureImage;
+        imgEl.style.display = 'block';
+        phEl.style.display = 'none';
+    } else {
+        imgEl.style.display = 'none';
+        phEl.style.display = 'block';
+        phEl.innerText = `[${item.fixtureName}] 집기 이미지`;
+    }
+
+    // Position image
+    if (item.positionImage) {
+        posImgEl.src = item.positionImage;
+        posImgEl.style.display = 'block';
+        posPhEl.style.display = 'none';
+    } else {
+        posImgEl.style.display = 'none';
+        posPhEl.style.display = 'block';
+        posPhEl.innerText = `[${item.fixtureName}] 연출 위치 이미지`;
+    }
 
     document.getElementById('fixtureReqDetail').scrollIntoView({ behavior: 'smooth' });
 }
@@ -748,14 +801,44 @@ function openFixtureDetailPage(idx) {
         <div class="approval-info-item"><span class="info-label">제품군</span><span class="info-val">${item.prodGroup || '-'}</span></div>
         <div class="approval-info-item"><span class="info-label">수량</span><span class="info-val">${item.qty}</span></div>
         <div class="approval-info-item"><span class="info-label">매장명</span><span class="info-val">${item.store}</span></div>
+        <div class="approval-info-item"><span class="info-label">협력사</span><span class="info-val">${item.vendor || '-'}</span></div>
+        <div class="approval-info-item"><span class="info-label">주체 팀</span><span class="info-val">${item.owningTeam || '-'}</span></div>
         <div class="approval-info-item"><span class="info-label">접수일</span><span class="info-val">${item.date}</span></div>
         <div class="approval-info-item"><span class="info-label">완료일</span><span class="info-val">${item.completeDate || '-'}</span></div>
+        <div class="approval-info-item"><span class="info-label">희망 설치일</span><span class="info-val">${item.installDate || '-'}</span></div>
+        <div class="approval-info-item" style="grid-column: span 2;"><span class="info-label">기타 특이사항</span><span class="info-val">${item.remarks || '-'}</span></div>
     `;
 
     // Mock Image display for full page
+    const detailImgEl = document.getElementById('detailFixtureImg');
     const placeholderEl = document.getElementById('detailFixtureImgPlaceholder');
-    if (placeholderEl) {
-        placeholderEl.innerText = `[${item.fixtureName}] 이미지`;
+    const detailPosImgEl = document.getElementById('detailPosImg');
+    const posPlaceholderEl = document.getElementById('detailPosImgPlaceholder');
+
+    // Fixture image
+    if (item.fixtureImage) {
+        detailImgEl.src = item.fixtureImage;
+        detailImgEl.style.display = 'block';
+        if (placeholderEl) placeholderEl.style.display = 'none';
+    } else {
+        detailImgEl.style.display = 'none';
+        if (placeholderEl) {
+            placeholderEl.style.display = 'block';
+            placeholderEl.innerText = `[${item.fixtureName}] 집기 이미지`;
+        }
+    }
+
+    // Position image
+    if (item.positionImage) {
+        detailPosImgEl.src = item.positionImage;
+        detailPosImgEl.style.display = 'block';
+        if (posPlaceholderEl) posPlaceholderEl.style.display = 'none';
+    } else {
+        detailPosImgEl.style.display = 'none';
+        if (posPlaceholderEl) {
+            posPlaceholderEl.style.display = 'block';
+            posPlaceholderEl.innerText = `[${item.fixtureName}] 연출 위치 이미지`;
+        }
     }
 
     // Render approval stepper based on current step
@@ -789,6 +872,7 @@ function openFixtureDetailPage(idx) {
     stepOrder.forEach((s, i) => {
         const stepEl = document.getElementById(`step-${s}`);
         const btnEl = document.getElementById(`btn-${s}`);
+        const cancelBtnEl = document.getElementById(`btn-${s}-cancel`);
         const doneEl = document.getElementById(`done-${s}`);
         stepEl.classList.remove('apv-step-disabled', 'apv-step-active', 'apv-step-done');
 
@@ -796,13 +880,6 @@ function openFixtureDetailPage(idx) {
         let effectiveStep = step;
         let currentStepIdx = i;
         if (item.type === 'VMD 집기' && i >= 1) {
-            // If VMD, we only care about design(1) and hsad(2).
-            // But we already hid the marketing(0) UI.
-            // Let's adjust the indices for highlighting:
-            // marketing=0, design=1, hsad=2.
-            // If VMD, step 0 means design is active? Or keep step as is?
-            // The user said "remove marketing step". 
-            // So for VMD, if status is '검토중' (0), design step (1) should be active.
             if (effectiveStep === 0) effectiveStep = 1;
         }
 
@@ -811,16 +888,27 @@ function openFixtureDetailPage(idx) {
             stepEl.classList.add('apv-step-done');
             if (btnEl) { btnEl.style.display = 'none'; }
             if (doneEl) { doneEl.style.display = 'inline-block'; }
+            if (cancelBtnEl && (s === 'marketing' || s === 'design')) {
+                // If the next step is already completed, maybe prevent cancel?
+                // But let's allow it as long as the overall request is not completed (step=4)
+                if (step < 4) {
+                    cancelBtnEl.style.display = 'inline-block';
+                } else {
+                    cancelBtnEl.style.display = 'none';
+                }
+            }
         } else if (i === effectiveStep) {
             // Current active step
             stepEl.classList.add('apv-step-active');
             if (btnEl) { btnEl.disabled = false; btnEl.style.display = 'inline-block'; }
             if (doneEl) { doneEl.style.display = 'none'; }
+            if (cancelBtnEl) { cancelBtnEl.style.display = 'none'; }
         } else {
             // Future locked
             stepEl.classList.add('apv-step-disabled');
             if (btnEl) { btnEl.disabled = true; btnEl.style.display = 'inline-block'; }
             if (doneEl) { doneEl.style.display = 'none'; }
+            if (cancelBtnEl) { cancelBtnEl.style.display = 'none'; }
         }
     });
 
@@ -835,9 +923,46 @@ function openFixtureDetailPage(idx) {
     if (effectiveStepForComplete >= 3) {
         completeStep.classList.add('apv-step-done');
         doneBadgeComplete.style.display = 'inline-block';
+
+        // --- Show Estimate Section if HSAD Approval is Done (>= 3) ---
+        const estimateSection = document.getElementById('estimateSection');
+        const vmdFields = document.getElementById('vmdEstimateFields');
+        const mktFields = document.getElementById('marketingEstimateFields');
+        const estimateTypeLabel = document.getElementById('estimateTypeLabel');
+
+        if (estimateSection) {
+            estimateSection.style.display = 'block';
+            if (item.type === 'VMD 집기') {
+                if (estimateTypeLabel) estimateTypeLabel.innerText = 'VMD 집기 비용';
+                if (vmdFields) vmdFields.style.display = 'grid';
+                if (mktFields) { mktFields.style.display = 'none'; mktFields.innerHTML = ''; }
+            } else {
+                if (estimateTypeLabel) estimateTypeLabel.innerText = '마케팅 집기 비용';
+                if (vmdFields) vmdFields.style.display = 'none';
+                if (mktFields) {
+                    // Ensure fixture master data is loaded
+                    if (!fixtureMasterData) app.initFixtureMgmt();
+                    const teams = (fixtureMasterData && fixtureMasterData.marketing)
+                        ? fixtureMasterData.marketing
+                        : [];
+                    // Generate one row per top-level marketing category
+                    mktFields.innerHTML = teams.map(cat => `
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="width: 140px; font-size: 0.9rem;">(${cat.name}) 마케팅팀 비용</span>
+                            <input type="text" class="admin-input" placeholder="0" style="flex: 1; text-align: right; padding: 5px; border: 1px solid #ccc;"> <span style="color:#666;">원</span>
+                        </div>
+                    `).join('');
+                    mktFields.style.display = 'grid';
+                }
+            }
+        }
     } else {
         completeStep.classList.add('apv-step-disabled');
         doneBadgeComplete.style.display = 'none';
+
+        // --- Hide Estimate Section ---
+        const estimateSection = document.getElementById('estimateSection');
+        if (estimateSection) estimateSection.style.display = 'none';
     }
 }
 
@@ -852,6 +977,8 @@ function resetApprovalStepper() {
         el.classList.add('apv-step-disabled');
         const btn = document.getElementById(`btn-${s}`);
         if (btn) { btn.disabled = true; btn.style.display = 'inline-block'; }
+        const cancelBtn = document.getElementById(`btn-${s}-cancel`);
+        if (cancelBtn) { cancelBtn.style.display = 'none'; }
         const done = document.getElementById(`done-${s}`);
         if (done) done.style.display = 'none';
     });
@@ -911,6 +1038,44 @@ function approveStep(step) {
 
     app.setFixtureViewMode(currentFixtureViewMode);
     openFixtureDetailPage(currentFixtureReqIndex);
+}
+
+function cancelApprovalStep(step) {
+    if (currentFixtureReqIndex === null) return;
+    if (!confirm('승인을 취소하시겠습니까?')) return;
+
+    const item = fixtureRequestMockData[currentFixtureReqIndex];
+    if (step === 'marketing') {
+        item.approvalStep = 0;
+        item.status = '검토중';
+    } else if (step === 'design') {
+        // If VMD, and marketing was skipped, going back from design means going back to 0 (검토중).
+        if (item.type === 'VMD 집기') {
+            item.approvalStep = 0;
+            item.status = '검토중';
+        } else {
+            item.approvalStep = 1;
+            item.status = '마케팅팀 승인완료';
+        }
+    }
+
+    // Add history row
+    const tbody = document.getElementById('approvalHistoryBody');
+    const now = new Date();
+    const timeStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const stepLabel = { marketing: '마케팅팀 승인 취소', design: '디자인팀 승인 취소' };
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${timeStr}</td>
+        <td>jhsophy@hsad.co.kr</td>
+        <td style="color: #c62828;">${stepLabel[step]}</td>
+        <td style="text-align:left;">${stepLabel[step]} 처리</td>
+    `;
+    tbody.appendChild(tr);
+
+    app.setFixtureViewMode(currentFixtureViewMode);
+    openFixtureDetailPage(currentFixtureReqIndex);
+    alert(`[취소 완료]\n${stepLabel[step]} 되었습니다.`);
 }
 
 function cancelFixtureRequest() {
@@ -1106,3 +1271,571 @@ function confirmHsadVendorOrder() {
     closeHsadVendorModal();
     approveStep('hsad', vendor);
 }
+
+// ============================================================
+// Fixture Master Management Logic
+// ============================================================
+let fixtureMasterData = null;
+let currentMgmtInitial = 'marketing';
+let selectedMgmtPath = []; // e.g. ['largeId', 'middleId', 'smallId']
+let currentEditingId = null;
+let currentEditingType = null; // 'category' or 'fixture'
+
+app.initFixtureMgmt = function () {
+    const savedData = localStorage.getItem('fixtureMasterData');
+    if (savedData) {
+        fixtureMasterData = JSON.parse(savedData);
+    } else {
+        // Default Mock Data
+        fixtureMasterData = {
+            marketing: [
+                {
+                    id: 'L1', name: 'TV/오디오', children: [
+                        {
+                            id: 'M1', name: '상업용 디스플레이', children: [
+                                {
+                                    id: 'S1', name: '상업용 디스플레이 65인치', fixtures: [
+                                        { id: 'F1', name: '상업용 디스플레이 65인치', size: '1450 x 830', cost: '1,500,000원', img: '' }
+                                    ]
+                                },
+                                {
+                                    id: 'S2', name: '상업용 디스플레이 75인치', fixtures: [
+                                        { id: 'F2', name: '상업용 디스플레이 75인치', size: '1690 x 960', cost: '2,100,000원', img: '' }
+                                    ]
+                                }
+                            ],
+                            fixtures: []
+                        },
+                        {
+                            id: 'M2', name: '프로젝터', children: [], fixtures: [
+                                { id: 'F3', name: '시네빔 레이저 4K', size: '400 x 400', cost: '2,000,000원', img: '' }
+                            ]
+                        },
+                        {
+                            id: 'M3', name: '스탠바이미', children: [], fixtures: [
+                                { id: 'F4', name: '스탠바이미 GO27', size: '270 x 580 x 500', cost: '900,000원', img: '' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'L2', name: 'PC/모니터', children: [
+                        {
+                            id: 'M4', name: '노트북', children: [], fixtures: [
+                                { id: 'F5', name: 'LG 그램 16인치', size: '360 x 240', cost: '1,200,000원', img: '' },
+                                { id: 'F6', name: 'LG 그램 코더제로 14', size: '390 x 270', cost: '1,100,000원', img: '' }
+                            ]
+                        },
+                        {
+                            id: 'M5', name: '울트라 PC', children: [], fixtures: [
+                                { id: 'F7', name: 'LG 코드 제로 부스터', size: '1200 x 600 x 1400', cost: '850,000원', img: '' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'L3', name: '주방가전', children: [
+                        {
+                            id: 'M6', name: '닉포트', children: [], fixtures: [
+                                { id: 'F8', name: '닉포트 단독 부스', size: '800 x 700 x 1400', cost: '650,000원', img: '' },
+                                { id: 'F9', name: '닉포트 코너 유닛', size: '600 x 600 x 1200', cost: '480,000원', img: '' }
+                            ]
+                        },
+                        {
+                            id: 'M7', name: '스스 오브제', children: [], fixtures: [
+                                { id: 'F10', name: '스스 단독모델 방다', size: '550 x 500 x 1100', cost: '320,000원', img: '' }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            vmd: [
+                {
+                    id: 'VL1', name: '첨제 스탠드', children: [
+                        {
+                            id: 'VM1', name: '대형 첨제 스탠드', children: [], fixtures: [
+                                { id: 'VF1', name: 'DP 대형 첨제 스탠드 A형', size: '600 x 600 x 1800', cost: '450,000원', img: '' },
+                                { id: 'VF2', name: 'DP 대형 첨제 스탠드 B형', size: '600 x 600 x 1600', cost: '380,000원', img: '' }
+                            ]
+                        },
+                        {
+                            id: 'VM2', name: '중형 첨제 스탠드', children: [], fixtures: [
+                                { id: 'VF3', name: '중형 첨제 스탠드', size: '400 x 400 x 1400', cost: '280,000원', img: '' },
+                                { id: 'VF4', name: '인스토어 중형형', size: '450 x 400 x 1300', cost: '260,000원', img: '' }
+                            ]
+                        },
+                        {
+                            id: 'VM3', name: '소형 첨제 스탠드', children: [], fixtures: [
+                                { id: 'VF5', name: '소형 엑세서리 스탠드', size: '300 x 300 x 1000', cost: '180,000원', img: '' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'VL2', name: '팁팁이', children: [
+                        {
+                            id: 'VM4', name: '도어형 팁팁이', children: [], fixtures: [
+                                { id: 'VF6', name: '도어형 팁팁이 대형', size: '1200 x 600 x 2200', cost: '1,200,000원', img: '' }
+                            ]
+                        },
+                        {
+                            id: 'VM5', name: '박스형 팁팁이', children: [], fixtures: [
+                                { id: 'VF7', name: '박스형 팁팁이 중형', size: '900 x 500 x 500', cost: '580,000원', img: '' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'VL3', name: 'VMD 집기 (시안)', children: [
+                        {
+                            id: 'VM6', name: '첨제 세트', children: [], fixtures: [
+                                { id: 'VF8', name: '시안 1 첨제 세트', size: '1200 x 800 x 1600', cost: '3,500,000원', img: '' },
+                                { id: 'VF9', name: '시안 2 첨제 세트', size: '1100 x 750 x 1550', cost: '3,100,000원', img: '' },
+                                { id: 'VF10', name: '시안 3 첨제 세트', size: '1000 x 700 x 1500', cost: '2,800,000원', img: '' }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+        localStorage.setItem('fixtureMasterData', JSON.stringify(fixtureMasterData));
+    }
+};
+
+app.setMgmtInitial = function (type) {
+    currentMgmtInitial = type;
+    selectedMgmtPath = [];
+
+    document.getElementById('btn-initial-marketing').className = (type === 'marketing') ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline';
+    document.getElementById('btn-initial-vmd').className = (type === 'vmd') ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline';
+
+    app.renderCategoryTree();
+    app.renderMgmtContent();
+};
+
+app.renderCategoryTree = function () {
+    const container = document.getElementById('categoryTreeContainer');
+    if (!container) return;
+
+    const data = fixtureMasterData[currentMgmtInitial];
+    container.innerHTML = '';
+
+    data.forEach(large => {
+        const group = document.createElement('div');
+        group.className = 'tree-group';
+        const isSelected = selectedMgmtPath[0] === large.id;
+
+        group.innerHTML = `
+            <div class="tree-item level-1 ${isSelected ? 'active' : ''}" onclick="app.selectMgmtCategory(['${large.id}'])">
+                <i class='bx bx-chevron-right'></i>
+                <i class='bx bx-folder'></i>
+                ${large.name}
+            </div>
+            <div class="tree-children" style="display: ${isSelected ? 'block' : 'none'}">
+                ${large.children.map(middle => {
+            const isMidSelected = isSelected && selectedMgmtPath[1] === middle.id;
+            return `
+                        <div class="tree-group ${isMidSelected ? 'expanded' : ''}">
+                            <div class="tree-item level-2 ${isMidSelected ? 'active' : ''}" onclick="app.selectMgmtCategory(['${large.id}', '${middle.id}'])">
+                                <i class='bx bx-chevron-right'></i>
+                                <i class='bx bx-folder-open'></i>
+                                ${middle.name}
+                            </div>
+                            <div class="tree-children" style="display: ${isMidSelected ? 'block' : 'none'}">
+                                ${middle.children.map(small => {
+                const isSmallSelected = isMidSelected && selectedMgmtPath[2] === small.id;
+                return `
+                                        <div class="tree-item level-3 ${isSmallSelected ? 'active' : ''}" onclick="app.selectMgmtCategory(['${large.id}', '${middle.id}', '${small.id}'])">
+                                            <i class='bx bx-subdirectory-right'></i>
+                                            ${small.name}
+                                        </div>
+                                    `;
+            }).join('')}
+                                <div class="tree-item level-3" style="color: #999; font-size: 0.8rem;" onclick="app.openCategoryModal('small', '${middle.id}')">+ 소카테고리 추가</div>
+                            </div>
+                        </div>
+                    `;
+        }).join('')}
+                <div class="tree-item level-2" style="color: #999; font-size: 0.8rem;" onclick="app.openCategoryModal('middle', '${large.id}')">+ 중카테고리 추가</div>
+            </div>
+        `;
+        container.appendChild(group);
+    });
+};
+
+app.selectMgmtCategory = function (path) {
+    selectedMgmtPath = path;
+    app.renderCategoryTree();
+    app.renderMgmtContent();
+};
+
+app.renderMgmtContent = function () {
+    const breadcrumb = document.getElementById('mgmtBreadcrumb');
+    const container = document.getElementById('mgmtListContainer');
+    const btnAddFix = document.getElementById('btnAddFixture');
+    const btnEditCat = document.getElementById('btnEditCategory');
+
+    if (selectedMgmtPath.length === 0) {
+        breadcrumb.innerText = '전체';
+        btnAddFix.style.display = 'none';
+        btnEditCat.style.display = 'none';
+        container.innerHTML = `
+            <div class="empty-state" style="text-align: center; color: #999; padding-top: 100px;">
+                <i class='bx bx-info-circle' style="font-size: 3rem; display: block; margin-bottom: 10px;"></i>
+                <p>좌측 카테고리를 선택하여<br>구성 정보를 확인하거나 집기를 등록해주세요.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Find selected object
+    let currentObj = null;
+    let names = [currentMgmtInitial === 'marketing' ? '마케팅 집기' : 'VMD 집기'];
+
+    const large = fixtureMasterData[currentMgmtInitial].find(l => l.id === selectedMgmtPath[0]);
+    names.push(large.name);
+    currentObj = large;
+
+    if (selectedMgmtPath.length >= 2) {
+        const middle = large.children.find(m => m.id === selectedMgmtPath[1]);
+        names.push(middle.name);
+        currentObj = middle;
+    }
+
+    if (selectedMgmtPath.length >= 3) {
+        const small = currentObj.children.find(s => s.id === selectedMgmtPath[2]);
+        names.push(small.name);
+        currentObj = small;
+    }
+
+    breadcrumb.innerText = names.join(' > ');
+    btnEditCat.style.display = 'inline-block';
+
+    // Only Middle or Small can have fixtures in this demo (or all levels if needed)
+    // The user said: 4. 소카테고리 항목이 없고 바로 5. 집기 상세로 넘어가는 케이스도 있어
+    // So both Middle and Small should show "Add Fixture" button if they are "leaf" categories or intended to have fixtures.
+    btnAddFix.style.display = 'inline-block';
+
+    const fixtures = currentObj.fixtures || [];
+
+    if (fixtures.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center; padding: 50px; background: #fafafa; border-radius: 8px;">
+                <p style="color: #999; margin-bottom: 15px;">등록된 집기가 없습니다.</p>
+                <button class="btn btn-primary" onclick="app.openFixtureModal()">+ 첫 번째 집기 등록</button>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="mgmt-fixture-grid">
+                ${fixtures.map(f => `
+                    <div class="mgmt-fixture-card">
+                        <div class="mgmt-fixture-img">
+                            ${f.img ? `<img src="${f.img}">` : '<i class="bx bx-image" style="font-size: 2rem; color: #ddd;"></i>'}
+                        </div>
+                        <div class="mgmt-fixture-info">
+                            <div class="mgmt-fixture-name">${f.name}</div>
+                            <div class="mgmt-fixture-meta">사이즈: ${f.size || '-'}</div>
+                            <div class="mgmt-fixture-meta">견적: ${f.cost || '-'}</div>
+                            <div class="mgmt-fixture-meta" style="color: #A50034; font-weight: 500;">담당 팀: ${f.team || '-'}</div>
+                            <div style="margin-top: 10px; display: flex; gap: 5px;">
+                                <button class="btn btn-outline btn-sm" style="flex:1; font-size: 0.75rem;" onclick="app.openFixtureModal('${f.id}')">수정</button>
+                                <button class="btn btn-outline btn-sm" style="flex:1; font-size: 0.75rem; color: #A50034;" onclick="app.deleteFixture('${f.id}')">삭제</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+};
+
+app.openCategoryModal = function (type, parentId = null) {
+    currentEditingType = 'category';
+    currentEditingId = parentId; // For new category, parentId is stored here
+
+    const title = document.getElementById('categoryModalTitle');
+    const input = document.getElementById('categoryNameInput');
+    input.value = '';
+
+    if (type === 'edit') {
+        title.innerText = '카테고리명 수정';
+        // Find existing name
+        let name = '';
+        const data = fixtureMasterData[currentMgmtInitial];
+        if (selectedMgmtPath.length === 1) name = data.find(l => l.id === selectedMgmtPath[0]).name;
+        else if (selectedMgmtPath.length === 2) name = data.find(l => l.id === selectedMgmtPath[0]).children.find(m => m.id === selectedMgmtPath[1]).name;
+        else if (selectedMgmtPath.length === 3) name = data.find(l => l.id === selectedMgmtPath[0]).children.find(m => m.id === selectedMgmtPath[1]).children.find(s => s.id === selectedMgmtPath[2]).name;
+        input.value = name;
+        currentEditingId = 'EDIT_CURRENT';
+    } else {
+        title.innerText = (type === 'large' ? '대카테고리' : type === 'middle' ? '중카테고리' : '소카테고리') + ' 등록';
+        currentEditingType = 'category_new_' + type;
+    }
+
+    document.getElementById('categoryModal').style.display = 'flex';
+};
+
+app.closeCategoryModal = function () {
+    document.getElementById('categoryModal').style.display = 'none';
+};
+
+app.saveCategory = function () {
+    const name = document.getElementById('categoryNameInput').value;
+    if (!name.trim()) return alert('카테고리명을 입력해주세요.');
+
+    const data = fixtureMasterData[currentMgmtInitial];
+    const newId = 'ID_' + Date.now();
+
+    if (currentEditingType === 'category_new_large') {
+        data.push({ id: newId, name: name, children: [], fixtures: [] });
+    } else if (currentEditingType === 'category_new_middle') {
+        const large = data.find(l => l.id === currentEditingId);
+        large.children.push({ id: newId, name: name, children: [], fixtures: [] });
+    } else if (currentEditingType === 'category_new_small') {
+        const large = data.find(l => l.id === selectedMgmtPath[0]);
+        const middle = large.children.find(m => m.id === currentEditingId);
+        middle.children.push({ id: newId, name: name, fixtures: [] });
+    } else if (currentEditingId === 'EDIT_CURRENT') {
+        if (selectedMgmtPath.length === 1) data.find(l => l.id === selectedMgmtPath[0]).name = name;
+        else if (selectedMgmtPath.length === 2) data.find(l => l.id === selectedMgmtPath[0]).children.find(m => m.id === selectedMgmtPath[1]).name = name;
+        else if (selectedMgmtPath.length === 3) data.find(l => l.id === selectedMgmtPath[0]).children.find(m => m.id === selectedMgmtPath[1]).children.find(s => s.id === selectedMgmtPath[2]).name = name;
+    }
+
+    localStorage.setItem('fixtureMasterData', JSON.stringify(fixtureMasterData));
+    app.renderCategoryTree();
+    app.renderMgmtContent();
+    app.closeCategoryModal();
+};
+
+app.openFixtureModal = function (fixtureId = null) {
+    currentEditingType = 'fixture';
+    currentEditingId = fixtureId;
+
+    const title = document.getElementById('fixtureModalTitle');
+    const nameIn = document.getElementById('fixNameInput');
+    const sizeIn = document.getElementById('fixSizeInput');
+    const costIn = document.getElementById('fixCostInput');
+    const teamIn = document.getElementById('fixTeamInput');
+
+    nameIn.value = '';
+    sizeIn.value = '';
+    costIn.value = '';
+    if (teamIn) teamIn.value = '';
+
+    if (fixtureId) {
+        title.innerText = '집기 정보 수정';
+        // Find fixture
+        const large = fixtureMasterData[currentMgmtInitial].find(l => l.id === selectedMgmtPath[0]);
+        let parent = large;
+        if (selectedMgmtPath.length >= 2) parent = large.children.find(m => m.id === selectedMgmtPath[1]);
+        if (selectedMgmtPath.length >= 3) parent = parent.children.find(s => s.id === selectedMgmtPath[2]);
+
+        const fix = parent.fixtures.find(f => f.id === fixtureId);
+        nameIn.value = fix.name;
+        sizeIn.value = fix.size;
+        costIn.value = fix.cost;
+        if (teamIn) teamIn.value = fix.team || '';
+    } else {
+        title.innerText = '집기 정보 등록';
+    }
+
+    document.getElementById('fixtureModal').style.display = 'flex';
+};
+
+app.closeFixtureModal = function () {
+    document.getElementById('fixtureModal').style.display = 'none';
+};
+
+app.saveFixture = function () {
+    const name = document.getElementById('fixNameInput').value;
+    const size = document.getElementById('fixSizeInput').value;
+    const cost = document.getElementById('fixCostInput').value;
+    const teamEl = document.getElementById('fixTeamInput');
+    const team = teamEl ? teamEl.value : '';
+
+    if (!name.trim()) return alert('집기명을 입력해주세요.');
+
+    const large = fixtureMasterData[currentMgmtInitial].find(l => l.id === selectedMgmtPath[0]);
+    let parent = large;
+    if (selectedMgmtPath.length >= 2) parent = large.children.find(m => m.id === selectedMgmtPath[1]);
+    if (selectedMgmtPath.length >= 3) parent = parent.children.find(s => s.id === selectedMgmtPath[2]);
+
+    if (currentEditingId) {
+        const fix = parent.fixtures.find(f => f.id === currentEditingId);
+        fix.name = name;
+        fix.size = size;
+        fix.cost = cost;
+        fix.team = team;
+    } else {
+        const newId = 'FIX_' + Date.now();
+        parent.fixtures.push({ id: newId, name: name, size: size, cost: cost, team: team, img: '' });
+    }
+
+    localStorage.setItem('fixtureMasterData', JSON.stringify(fixtureMasterData));
+    app.renderMgmtContent();
+    app.closeFixtureModal();
+};
+
+app.deleteFixture = function (id) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    const large = fixtureMasterData[currentMgmtInitial].find(l => l.id === selectedMgmtPath[0]);
+    let parent = large;
+    if (selectedMgmtPath.length >= 2) parent = large.children.find(m => m.id === selectedMgmtPath[1]);
+    if (selectedMgmtPath.length >= 3) parent = parent.children.find(s => s.id === selectedMgmtPath[2]);
+
+    parent.fixtures = parent.fixtures.filter(f => f.id !== id);
+
+    localStorage.setItem('fixtureMasterData', JSON.stringify(fixtureMasterData));
+    app.renderMgmtContent();
+};
+
+function toggleApprovalHistory() {
+    const wrap = document.getElementById('approvalHistoryTableWrap');
+    const icon = document.querySelector('#btnToggleApprovalHistory i');
+    if (!wrap || !icon) return;
+
+}
+
+// ==========================================
+// Monthly Amount Check Modal Logic
+// ==========================================
+
+app.currentMonthlyType = 'marketing'; // 'marketing' | 'vmd'
+
+app.openMonthlyAmountModal = function () {
+    // Ensure fixture master data is loaded before opening
+    if (!fixtureMasterData) {
+        app.initFixtureMgmt();
+    }
+    document.getElementById('monthlyAmountModal').style.display = 'flex';
+    app.switchMonthlyType('marketing');
+};
+
+app.closeMonthlyAmountModal = function () {
+    document.getElementById('monthlyAmountModal').style.display = 'none';
+};
+
+app.switchMonthlyType = function (type) {
+    app.currentMonthlyType = type;
+
+    // Update Tab Styles
+    const mktTab = document.getElementById('monthlyTabMarketing');
+    const vmdTab = document.getElementById('monthlyTabVmd');
+
+    if (type === 'marketing') {
+        mktTab.style.borderBottomColor = '#A50034';
+        mktTab.style.color = '#A50034';
+        vmdTab.style.borderBottomColor = 'transparent';
+        vmdTab.style.color = '#666';
+
+        document.getElementById('labelMonthlySubGroup').innerText = '팀별';
+    } else {
+        vmdTab.style.borderBottomColor = '#A50034';
+        vmdTab.style.color = '#A50034';
+        mktTab.style.borderBottomColor = 'transparent';
+        mktTab.style.color = '#666';
+
+        document.getElementById('labelMonthlySubGroup').innerText = '채널별';
+    }
+
+    // Always default to 'item' (집기별) when switching primary tab
+    document.getElementById('monthlySubTypeItem').checked = true;
+
+    app.renderMonthlyAmount();
+};
+
+app.renderMonthlyAmount = function () {
+    const wrap = document.getElementById('monthlyAmountResultWrap');
+    if (!wrap) return;
+
+    const subType = document.querySelector('input[name="monthlySubType"]:checked').value;
+
+    let html = '';
+
+    if (subType === 'item') {
+        // 집기별 (Grid/Card) - fully recursive traversal
+        function collectFixtures(node) {
+            let result = [];
+            if (node.fixtures && node.fixtures.length > 0) {
+                result = result.concat(node.fixtures);
+            }
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(child => {
+                    result = result.concat(collectFixtures(child));
+                });
+            }
+            return result;
+        }
+
+        let allFixtures = [];
+        if (fixtureMasterData && fixtureMasterData[app.currentMonthlyType]) {
+            fixtureMasterData[app.currentMonthlyType].forEach(large => {
+                allFixtures = allFixtures.concat(collectFixtures(large));
+            });
+        }
+
+        html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">`;
+        if (allFixtures.length === 0) {
+            html += `<div style="grid-column: 1 / -1; text-align: center; color: #999; padding: 40px;">등록된 집기가 없습니다.</div>`;
+        } else {
+            allFixtures.forEach(f => {
+                // Generate a dummy accumulated amount based on id for consistency
+                let numId = f.id.replace(/\D/g, '') || '1';
+                let accCost = (parseInt(numId) % 10 + 1) * 150000;
+
+                html += `
+                    <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                        <div style="height: 120px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                            ${f.img ? `<img src="${f.img}" style="width:100%; height:100%; object-fit:cover;">` : `<i class='bx bx-image' style="font-size: 3rem; color: #ccc;"></i>`}
+                        </div>
+                        <div style="padding: 15px;">
+                            <div style="font-weight: bold; margin-bottom: 5px; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${f.name}</div>
+                            <div style="color: #666; font-size: 0.85rem; margin-bottom: 15px;">사이즈: ${f.size || '-'}</div>
+                            <div style="background: #f9f9f9; padding: 10px; border-radius: 4px; text-align: right;">
+                                <div style="font-size: 0.8rem; color: #888; margin-bottom: 3px;">이번 달 누적 금액</div>
+                                <div style="font-weight: bold; color: #A50034; font-size: 1.1rem;">${accCost.toLocaleString()}원</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        html += `</div>`;
+
+    } else {
+        // 그룹별 (팀별 또는 채널별)
+        let groups = [];
+        if (app.currentMonthlyType === 'marketing') {
+            groups = [
+                { name: '마케팅팀1', amount: 4500000 },
+                { name: '마케팅팀2', amount: 3200000 },
+                { name: '마케팅팀3', amount: 1500000 },
+                { name: '마케팅팀4', amount: 5600000 },
+                { name: '마케팅팀5', amount: 2100000 },
+                { name: '마케팅팀6', amount: 800000 },
+                { name: '마케팅팀7', amount: 9500000 }
+            ];
+        } else {
+            groups = [
+                { name: 'DP 비용', amount: 12500000 },
+                { name: 'Hip 비용', amount: 8400000 },
+                { name: '지점판촉비', amount: 5200000 }
+            ];
+        }
+
+        html += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;">`;
+        groups.forEach(g => {
+            html += `
+                <div style="border: 1px solid #eee; border-radius: 8px; padding: 20px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 120px;">
+                    <div style="font-weight: bold; font-size: 1.1rem; color: #333; margin-bottom: 15px;">${g.name}</div>
+                    <div style="font-size: 1.4rem; font-weight: bold; color: #A50034;">${g.amount.toLocaleString()}원</div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+    }
+
+    wrap.innerHTML = html;
+};

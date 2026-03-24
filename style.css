@@ -1546,3 +1546,137 @@ tbody tr:hover {
     align-items: center;
     justify-content: space-between;
 }
+
+/* Fixture Management Styles */
+.fixture-mgmt-container {
+    padding: 10px 0;
+}
+
+.mgmt-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.category-tree {
+    margin-top: 10px;
+}
+
+.tree-item {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.tree-item:hover {
+    background: #f5f5f5;
+}
+
+.tree-item.active {
+    background: #f3e5f5;
+    color: #6a1b9a;
+    font-weight: 600;
+}
+
+.tree-item.level-1 {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.tree-item.level-2 {
+    padding-left: 24px;
+}
+
+.tree-item.level-3 {
+    padding-left: 40px;
+}
+
+.tree-item.level-4 {
+    padding-left: 56px;
+    font-style: italic;
+}
+
+.tree-item i {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.tree-group {
+    margin-bottom: 5px;
+}
+
+.tree-children {
+    display: none;
+}
+
+.tree-group.expanded>.tree-children {
+    display: block;
+}
+
+.tree-group.expanded>.tree-item i.bx-chevron-right::before {
+    content: "\ead0";
+    /* bx-chevron-down */
+}
+
+.mgmt-fixture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.mgmt-fixture-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.mgmt-fixture-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mgmt-fixture-img {
+    height: 120px;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mgmt-fixture-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.mgmt-fixture-info {
+    padding: 12px;
+}
+
+.mgmt-fixture-name {
+    font-weight: bold;
+    font-size: 0.95rem;
+    margin-bottom: 5px;
+}
+
+.mgmt-fixture-meta {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.admin-input {
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.admin-input:focus {
+    border-color: #A50034;
+    outline: none;
+}
